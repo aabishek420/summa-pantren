@@ -16,10 +16,9 @@ export default function App() {
   const [notes, setNotes] = useState([]);
   const [isSignUpMode, setIsSignUpMode] = useState(false);
 
-  // Monitor Firebase Auth state
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const token = await user.getIdToken();
         setIdToken(token);
@@ -29,21 +28,17 @@ export default function App() {
       } else {
         setIdToken(null);
         setEmail(null);
-        localStorage.removeItem("idToken");
-        localStorage.removeItem("email");
+        localStorage.clear();
       }
     });
-
-    return () => unsubscribe();
+    return () => unsub();
   }, []);
 
   useEffect(() => {
-    if (idToken) {
-      loadNotes();
-    }
+    if (idToken) loadNotes();
   }, [idToken]);
 
-  const handleLogin = async (token, userEmail) => {
+  const handleLogin = (token, userEmail) => {
     setIdToken(token);
     setEmail(userEmail);
     localStorage.setItem("idToken", token);
@@ -51,14 +46,12 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    getAuth().signOut();
     setIdToken(null);
     setEmail(null);
-    setNoteToEdit(null);
     setNotes([]);
-    localStorage.removeItem("idToken");
-    localStorage.removeItem("email");
-    const auth = getAuth();
-    auth.signOut();
+    setNoteToEdit(null);
+    localStorage.clear();
   };
 
   const loadNotes = async () => {
@@ -103,12 +96,12 @@ export default function App() {
         <div className="overlay">
           <div className="overlay-panel overlay-left">
             <h1>Welcome Back!</h1>
-            <p>If you already have an account, log in and continue your journey!</p>
+            <p>Already have an account? Log in now!</p>
             <button className="btn ghost" onClick={() => setIsSignUpMode(false)}>Login</button>
           </div>
           <div className="overlay-panel overlay-right">
             <h1>Hello, Friend!</h1>
-            <p>If you're new, sign up and start taking notes with us!</p>
+            <p>New here? Sign up and get started!</p>
             <button className="btn ghost" onClick={() => setIsSignUpMode(true)}>Register</button>
           </div>
         </div>
