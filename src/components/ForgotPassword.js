@@ -1,38 +1,49 @@
+// components/ForgotPassword.js
 import React, { useState } from "react";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
-export default function ForgotPassword() {
+export default function ForgotPassword({ onBack }) {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleReset = async (e) => {
-    e.preventDefault();
-    const auth = getAuth();
+  const handleReset = async () => {
+    if (!email) {
+      setMessage("Please enter your email.");
+      return;
+    }
+
     try {
+      const auth = getAuth();
       await sendPasswordResetEmail(auth, email);
-      setMessage("📩 Password reset email sent!");
+      setMessage("✅ Password reset email sent. Check your inbox.");
     } catch (error) {
-      setMessage(`❌ Error: ${error.message}`);
+      setMessage("❌ Error: " + error.message);
     }
   };
 
   return (
-    <div className="my-3">
-      <h5>Forgot Password?</h5>
-      <form onSubmit={handleReset}>
-        <input
-          type="email"
-          className="form-control mb-2"
-          placeholder="Enter your registered email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <button className="btn btn-warning w-100" type="submit">
-          Send Reset Link
+    <div style={{ textAlign: "center", width: "100%" }}>
+      <h3>Reset Your Password</h3>
+      <p className="mb-3">Enter your email address to receive a reset link.</p>
+      <input
+        type="email"
+        className="form-control mb-3"
+        placeholder="Enter your email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <button className="btn btn-primary mb-2" onClick={handleReset}>
+        Send Reset Email
+      </button>
+
+      {/* 🔙 Back to Login Button */}
+      <div>
+        <button className="btn btn-link mt-2" onClick={onBack}>
+          🔙 Back to Login
         </button>
-      </form>
-      {message && <div className="alert alert-info mt-2">{message}</div>}
+      </div>
+
+      {message && <p className="mt-3 text-info">{message}</p>}
     </div>
   );
 }

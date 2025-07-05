@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Register from "./components/Register";
@@ -5,6 +6,7 @@ import Login from "./components/Login";
 import NoteForm from "./components/NoteForm";
 import NotesList from "./components/NotesList";
 import Logout from "./components/Logout";
+import ForgotPassword from "./components/ForgotPassword";
 import { fetchNotes } from "./utils/api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -15,6 +17,7 @@ export default function App() {
   const [noteToEdit, setNoteToEdit] = useState(null);
   const [notes, setNotes] = useState([]);
   const [isSignUpMode, setIsSignUpMode] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
 
   useEffect(() => {
     const auth = getAuth();
@@ -88,21 +91,60 @@ export default function App() {
   }
 
   return (
-    <div className={`container slider-container ${isSignUpMode ? "sign-up-mode" : ""}`}>
+    <div
+      className={`container slider-container ${isSignUpMode ? "sign-up-mode" : ""} ${isForgotPassword ? "forgot-password-mode" : ""}`}
+    >
       <div className={`form-container ${isSignUpMode ? "sign-up" : "sign-in"}`}>
-        {isSignUpMode ? <Register /> : <Login onLogin={handleLogin} />}
+        {isForgotPassword ? (
+          <ForgotPassword onBack={() => setIsForgotPassword(false)} />
+        ) : isSignUpMode ? (
+          <Register />
+        ) : (
+          <>
+            <Login onLogin={handleLogin} />
+            <button
+              className="btn btn-link mt-2"
+              onClick={() => setIsForgotPassword(true)}
+            >
+              Forgot Password?
+            </button>
+          </>
+        )}
       </div>
+
       <div className="overlay-container">
         <div className="overlay">
           <div className="overlay-panel overlay-left">
             <h1>Welcome Back!</h1>
             <p>Already have an account? Log in now!</p>
-            <button className="btn ghost" onClick={() => setIsSignUpMode(false)}>Login</button>
+            <button className="btn ghost" onClick={() => setIsSignUpMode(false)}>
+              Login
+            </button>
           </div>
           <div className="overlay-panel overlay-right">
-            <h1>Hello, Friend!</h1>
-            <p>New here? Sign up and get started!</p>
-            <button className="btn ghost" onClick={() => setIsSignUpMode(true)}>Register</button>
+            {isForgotPassword ? (
+              <>
+                <h1>Forgot Your Password?</h1>
+                <p>Enter your email to reset your password and get back on track.</p>
+                <button
+                  className="btn ghost"
+                  onClick={() => setIsForgotPassword(false)}
+                >
+                  Back to Login
+                </button>
+              </>
+            ) : (
+              <>
+                <h1>Hello, Friend!</h1>
+                <p>New here? Sign up and get started!</p>
+                <button
+                  className="btn ghost"
+                  onClick={() => setIsSignUpMode(true)}
+                >
+                  Register
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
